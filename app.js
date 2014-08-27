@@ -14,6 +14,10 @@ app.get('*', function (req, res) {
 	res.sendfile('./public/views/index.html');
 });
 
-http.createServer(app).listen(app.get('port'), function(){
+var server = http.createServer(app)
+var sockets = require('./config/sockets.js').init(server)
+
+server.listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
 });
+
