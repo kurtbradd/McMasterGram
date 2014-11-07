@@ -5,14 +5,14 @@ var environment = require("./environment.js");
 var ig = require('instagram-node').instagram();
 
 
-var instagramTags = ['rave', 'edm', 'raver','techno'];
+var instagramTags = ['rave', 'edm', 'raver','techno', 'plur', 'kandi'];
 
 exports.setup = function () {
 	ig.use(keys.instagram);
-
 	// suscribe();
 	// findSubscriptions();
 	// deleteSubscriptions();
+	console.log('Configuring Instagram Client Complete');
 }
 
 function suscribe () {
@@ -32,7 +32,6 @@ function deleteSubscriptions () {
 }
 
 function findSubscriptions () {
-	console.log('Finding Instagram Subscriptions');
 	ig.subscriptions(function(err, result, remaining, limit){
 		_.forEach(result, function (subscription) {
 			console.log("Instagram Subscription: " + helper.objToJSON(subscription));
