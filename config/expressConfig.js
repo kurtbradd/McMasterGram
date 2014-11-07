@@ -1,8 +1,9 @@
 var path = require('path');
+var environment = require('./environment.js');
 
 exports.setup = function (app, express) {
 	// all environments
-	app.set('port', process.env.PORT || 3000);
+	app.set('port', process.env.PORT || environment.server.port);
 	// app.use(express.favicon());
 	app.use(express.logger('short'));
 	app.use(express.json());
