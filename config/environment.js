@@ -5,10 +5,16 @@ module.exports = {
 	},
 
 	instagram: {
-		
+		api: {
+			v1: {
+				tags: {
+					url: 'https://api.instagram.com/v1/tags/'
+				}
+			}
+		}		
 	},
 	
 	server: {
-		'port':3000
+		port: 3000
 	}
 }
