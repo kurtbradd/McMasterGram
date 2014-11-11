@@ -19,8 +19,8 @@ _To run application, follow these steps._
 ```javascript
 module.exports = {
 	instagram: {
-		'client_id': '78d37ee2da164a1fb8f6b4da83a5b9f1',
-		'client_secret':'2af8cc97b4304a9c8f4e7f3986cc1f12'
+		'client_id': 'YOUR-CLIENT-ID-HERE',
+		'client_secret':'YOUR-CLIENT-SECRET-HERE'
 	}
 }
 ```
