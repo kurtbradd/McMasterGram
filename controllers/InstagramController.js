@@ -44,7 +44,7 @@ getPics = function (req, res) {
 setInterval(function() {
 	console.log('\nFETCHING NEW MEDIA');
 	getUpdatedMedia();
-}, 1000 * 2)
+}, 1000 * 8)
 
 
 //////////// HELPERS
@@ -60,9 +60,12 @@ getUpdatedMedia = function () {
 		delete newDataAvailableForTag[tag];
 		instaUrl = getRecentMediaURLForTag(tag);
 		getDataFromURL(instaUrl, function (error, data) {
-			if (!error) StorageManager.parseDataForImages(data);
+			if (!error) StorageManager.parseDataForImages(data, function (data){
+				console.log('got data to send to sockets');
+				if (socketServer && data) socketServer.emitNewPics(JSON.stringify(data));
+			});
 		})
-		console.log(tag + ' has updated media');
+		console.log(tag + ' has updated media\n');
 	});
 }
 
