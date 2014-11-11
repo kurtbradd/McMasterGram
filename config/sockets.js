@@ -1,17 +1,26 @@
 exports.init = function (server) {
 
 	var io = require('socket.io').listen(server);
+
 	io.sockets.on('connection', function (socket) {
+	  
 	  console.log('a socket connected');
 
 	  socket.on('disconnect', function() {
 	  	console.log('a socket disconnected');
 	  })
+
+	  socket.on('error', function (err) {
+		  if (err) console.log(err);
+		});
+		
 	});
 
 	return {
-		emitNewPic: function (picUrl) {
-			io.sockets.emit('newPic', picUrl);
+		emitNewPics: function (pics) {
+			console.log('before emit');
+			io.sockets.emit('newPics', pics);
+			console.log('after emit');
 		}
 	}
 
