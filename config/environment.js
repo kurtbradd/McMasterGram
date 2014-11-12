@@ -8,7 +8,7 @@ module.exports = {
 		api: {
 			v1: {
 				tags: {
-					url: 'https://api.instagram.com/v1/tags/'
+					url: 'https://api.instagram.com/v1/tags'
 				}
 			}
 		}		
