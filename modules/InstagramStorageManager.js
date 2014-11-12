@@ -86,6 +86,11 @@ storeMediaDataToRedis = function (tag, media, callback) {
 storeMinTagIdForResponse = function (tag, response) {
 	var newMinTagId = response.pagination.min_tag_id;
 	if (newMinTagId) {
+		var key = "min_tag_id:hashtag:" + tag;
+		redis.set(key, newMinTagId, function (err, data){
+			if (err) console.log(err);
+			if (data) console.log(data);	
+		})
 		console.log('Updated min_tag_id for ' + tag + ': ' + newMinTagId);
 		return latestMinTagId[tag] = newMinTagId;
 	}
