@@ -73,7 +73,8 @@ storeMediaDataToRedis = function (tag, media, callback) {
 	var stringMedia = _.map(media, function (image) {
 		return JSON.stringify(image);
 	});
-	stringMedia.unshift('hashtag:' + tag);
+	var key = 'hashtag:' + tag;
+	stringMedia.unshift(key);
 	redis.lpush(stringMedia, function (err, data) {
 		if (err) console.log(err);
 		if (data) console.log("length of newly pushed data: " + data);
