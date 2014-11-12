@@ -13,7 +13,16 @@ var latestMinTagId = {
 
 redis.on("connect", function () {
 	console.log('Redis Connected');
-	
+	var key = 'min_tag_id:hashtag:*';
+	redis.keys(key, function (err, data) {
+		_.forEach(data, function (hashtag_key) {
+			redis.get(hashtag_key, function (err, value){
+				var hashtag = hashtag_key.split(':').pop();
+				latestMinTagId[hashtag] = value;
+				console.log(latestMinTagId);
+			})
+		});
+	})
 });
 
 exports.fetchNewMediaForTag = fetchNewMediaForTag = function (tag, callback) {
