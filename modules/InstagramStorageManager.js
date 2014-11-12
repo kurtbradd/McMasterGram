@@ -79,10 +79,7 @@ storeMediaDataToRedis = function (tag, media, callback) {
 		if (err) console.log(err);
 		if (data) console.log("length of newly pushed data: " + data);
 	});
-	redis.ltrim(key, 0, 99, function (err, data) {
-		if (err) console.log(err);
-		if (data) console.log("trimmed data: " +data.length);
-	});
+	redis.ltrim(key, 0, 99);
 	// redis.lrange(key, 0, -1, function (err, data) {});
 }
 
@@ -90,10 +87,7 @@ storeMinTagIdForResponse = function (tag, response) {
 	var newMinTagId = response.pagination.min_tag_id;
 	if (newMinTagId) {
 		var key = "min_tag_id:hashtag:" + tag;
-		redis.set(key, newMinTagId, function (err, data){
-			if (err) console.log(err);
-			if (data) console.log(data);	
-		})
+		redis.set(key, newMinTagId);
 		console.log('Updated min_tag_id for ' + tag + ': ' + newMinTagId);
 		return latestMinTagId[tag] = newMinTagId;
 	}
