@@ -6,6 +6,7 @@ var keys = require('../config/keys.js');
 var redis = require("redis").createClient();
 
 var recentImages = [];
+
 var latestMinTagId = {
 	home: 'haha',
 	university: 1415759435074524
@@ -25,7 +26,7 @@ redis.on("connect", function () {
 	})
 });
 
-exports.fetchNewMediaForTag = fetchNewMediaForTag = function (tag, callback) {
+fetchNewMediaForTag = function (tag, callback) {
 	var apiUrl = recentMediaURLBuilder(tag);
 	getDataFromURL(apiUrl, function (err, response) {
 		if (err) return console.log(err);
@@ -37,6 +38,8 @@ exports.fetchNewMediaForTag = fetchNewMediaForTag = function (tag, callback) {
 		if (callback) return callback(newMedia);
 	})
 }
+
+exports.fetchNewMediaForTag = fetchNewMediaForTag;
 
 exports.getRecentImages = function () {
 	// return from redis
@@ -70,17 +73,16 @@ storeMediaDataToRedis = function (tag, media, callback) {
 	var stringMedia = _.map(media, function (image) {
 		return JSON.stringify(image);
 	});
-	var key = 'hashtag:' + tag;
 	stringMedia.unshift('hashtag:' + tag);
-	// redis.lpush(key, stringMedia);
-	redis.send_command("lpush", stringMedia, function (err, data, third) {
+	redis.lpush(stringMedia, function (err, data) {
 		if (err) console.log(err);
-		if (data) console.log(data);
-		if (third) console.log(third);
-	} );
-// strigify each object and push into redis
-// lpush
-// ltrim
+		if (data) console.log("length of newly pushed data: " + data);
+	});
+	redis.ltrim(key, 0, 99, function (err, data) {
+		if (err) console.log(err);
+		if (data) console.log("trimmed data: " +data.length);
+	});
+	// redis.lrange(key, 0, -1, function (err, data) {});
 }
 
 storeMinTagIdForResponse = function (tag, response) {
@@ -117,6 +119,6 @@ reduceMediaMetaData = function (media) {
 setInterval(function() {
 	console.log('\nFETCHING NEW MEDIA');
 	fetchNewMediaForTag('university', function (newMedia){
-		console.log(newMedia.length);
+		console.log(newMedia.length + " new media items");
 	})
 }, 1000 * 5)
