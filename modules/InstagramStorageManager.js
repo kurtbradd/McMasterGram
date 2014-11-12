@@ -8,8 +8,6 @@ var redis = require("redis").createClient();
 var recentImages = [];
 
 var latestMinTagId = {
-	home: 'haha',
-	university: 1415759435074524
 };
 
 redis.on("connect", function () {
