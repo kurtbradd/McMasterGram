@@ -39,8 +39,8 @@ fetchNewMediaForTag = function (tag, callback) {
 getRecentImages = function (offset, limit, callback) {
 	var allHashKey = 'all_hashtag_union:mcmaster_university';
 	var completionHandler = function (err, data) {
-		console.log(data.length);
-		callback(data);
+		if (err) callback(err);
+		if (data) callback(null, data);
 	}
 	redis.zrevrange(allHashKey, offset, limit, completionHandler);
 }
@@ -120,7 +120,6 @@ reduceMediaMetaData = function (media) {
 setInterval(function() {
 	console.log('\nFETCHING NEW MEDIA');
 	fetchNewMediaForTag('university', function (newMedia){
-		console.log(newMedia);
 		console.log(newMedia.length + " new university media items");
 	})
 }, 1000 * 5)
@@ -128,7 +127,10 @@ setInterval(function() {
 setInterval(function() {
 	console.log('\nFETCHING NEW MEDIA');
 	fetchNewMediaForTag('college', function (newMedia){
-		console.log(newMedia);
 		console.log(newMedia.length + " new college media items");
 	})
 }, 1000 * 5)
+
+getRecentImages(0, 1, function (err, data) {
+	console.log(data.length);
+})
