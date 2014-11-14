@@ -41,6 +41,12 @@ exports.fetchNewMediaForTag = fetchNewMediaForTag;
 
 exports.getRecentImages = function () {
 	// return from redis
+	// for each hashtag stored
+	// fetch all images
+	// order by date??
+	// execute command
+	// limit by 100?
+	// LRANGE(0, x)
 }
 
 getDataFromURL = function (url, callback) {
