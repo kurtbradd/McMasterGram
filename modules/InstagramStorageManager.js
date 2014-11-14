@@ -13,11 +13,10 @@ var latestMinTagId = {
 redis.on("connect", function () {
 	console.log('Redis Connected');
 	var key = 'min_tag_id:hashtag:*';
-	redis.keys(key, function (err, data) {
-		_.forEach(data, function (hashtag_key) {
-			redis.get(hashtag_key, function (err, value){
-				var hashtag = hashtag_key.split(':').pop();
-				latestMinTagId[hashtag] = value;
+	redis.keys(key, function (err, hashtags) {
+		_.forEach(hashtags, function (hashtag) {
+			redis.get(hashtag, function (err, tag_id){
+				latestMinTagId[hashtag.split(':').pop()] = tag_id;
 				console.log(latestMinTagId);
 			})
 		});
