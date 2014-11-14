@@ -13,11 +13,10 @@ var latestMinTagId = {
 redis.on("connect", function () {
 	console.log('Redis Connected');
 	var key = 'min_tag_id:hashtag:*';
-	redis.keys(key, function (err, data) {
-		_.forEach(data, function (hashtag_key) {
-			redis.get(hashtag_key, function (err, value){
-				var hashtag = hashtag_key.split(':').pop();
-				latestMinTagId[hashtag] = value;
+	redis.keys(key, function (err, hashtags) {
+		_.forEach(hashtags, function (hashtag) {
+			redis.get(hashtag, function (err, tag_id){
+				latestMinTagId[hashtag.split(':').pop()] = tag_id;
 				console.log(latestMinTagId);
 			})
 		});
@@ -29,25 +28,25 @@ fetchNewMediaForTag = function (tag, callback) {
 	getDataFromURL(apiUrl, function (err, response) {
 		if (err) return console.log(err);
 		var newMedia = parseMediaFromResponse(response);
-		if (newMedia.length > 0) {
+		if (newMedia) {
 			storeMediaDataToRedis(tag, newMedia);
 			storeMinTagIdForResponse(tag, response);
+			if (callback) return callback(newMedia);
 		}
-		if (callback) return callback(newMedia);
 	})
 }
 
-exports.fetchNewMediaForTag = fetchNewMediaForTag;
-
-exports.getRecentImages = function () {
-	// return from redis
-	// for each hashtag stored
-	// fetch all images
-	// order by date??
-	// execute command
-	// limit by 100?
-	// LRANGE(0, x)
+getRecentImages = function (offset, limit, callback) {
+	var allHashKey = 'all_hashtag_union:mcmaster_university';
+	var completionHandler = function (err, data) {
+		console.log(data.length);
+		callback(data);
+	}
+	redis.zrevrange(allHashKey, offset, limit, completionHandler);
 }
+
+exports.fetchNewMediaForTag = fetchNewMediaForTag;
+exports.getRecentImages = getRecentImages;
 
 getDataFromURL = function (url, callback) {
 	request(url, function (error, response, body) {
@@ -69,55 +68,65 @@ recentMediaURLBuilder = function (tag) {
 
 parseMediaFromResponse = function (response) {
 	var media = response.data;
-	if (!media) return;
+	if (media.length < 1) return false;
 	return reduceMediaMetaData(media);
 }
 
 storeMediaDataToRedis = function (tag, media, callback) {
-	var stringMedia = _.map(media, function (image) {
-		return JSON.stringify(image);
-	});
+	var args = [];
 	var key = 'hashtag:' + tag;
-	stringMedia.unshift(key);
-	redis.lpush(stringMedia, function (err, data) {
+	var completionHandler = function (err, data) {
 		if (err) console.log(err);
-		if (data) console.log("length of newly pushed data: " + data);
+	}
+
+	_.forEach(media, function (image) {
+		args.push(image.created_time);
+		args.push(JSON.stringify(image));
 	});
-	redis.ltrim(key, 0, 99);
-	// redis.lrange(key, 0, -1, function (err, data) {});
+
+	args.unshift(key);
+	redis.zadd(args, completionHandler); //add new media
+	redis.zremrangebyrank(key, 0, -1001, completionHandler);
+	storeUnionOfHashtags(completionHandler); //union of all tags
+}
+
+storeUnionOfHashtags = function (completionHandler) {
+	var hashSets = Object.keys(latestMinTagId);
+	var unionArgs = ['all_hashtag_union:mcmaster_university', hashSets.length];
+	_.forEach(hashSets, function (hashtag) {
+		unionArgs.push("hashtag:" + hashtag);
+	});
+	redis.zunionstore(unionArgs,completionHandler);
 }
 
 storeMinTagIdForResponse = function (tag, response) {
 	var newMinTagId = response.pagination.min_tag_id;
 	if (newMinTagId) {
-		var key = "min_tag_id:hashtag:" + tag;
-		redis.set(key, newMinTagId);
-		console.log('Updated min_tag_id for ' + tag + ': ' + newMinTagId);
+		redis.set("min_tag_id:hashtag:" + tag, newMinTagId);
 		return latestMinTagId[tag] = newMinTagId;
 	}
 }
 
-setRecentImages = function (recentImages) {
-	_.forEach(recentImages, function (image) {
-		recentImages.push(image);
-	});
-	if (recentImages.length > 1000) {
-		recentImages.splice(0,recentImages.length-1000);
-	}	
-}
-
 reduceMediaMetaData = function (media) {
 	return _.map(media, function (image) {
-		var keys = ['tags', 'location', 'link', 'likes', 'id',
+		var keys = ['created_time','tags', 'location', 'link', 'likes', 'id',
 								'type', 'videos', 'images','caption', 'user'];
 		return _.pick(image, keys);
 	});
 }
 
-
 setInterval(function() {
 	console.log('\nFETCHING NEW MEDIA');
 	fetchNewMediaForTag('university', function (newMedia){
-		console.log(newMedia.length + " new media items");
+		console.log(newMedia);
+		console.log(newMedia.length + " new university media items");
+	})
+}, 1000 * 5)
+
+setInterval(function() {
+	console.log('\nFETCHING NEW MEDIA');
+	fetchNewMediaForTag('college', function (newMedia){
+		console.log(newMedia);
+		console.log(newMedia.length + " new college media items");
 	})
 }, 1000 * 5)
