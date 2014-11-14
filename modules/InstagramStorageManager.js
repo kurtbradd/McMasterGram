@@ -106,6 +106,15 @@ reduceMediaMetaData = function (media) {
 setInterval(function() {
 	console.log('\nFETCHING NEW MEDIA');
 	fetchNewMediaForTag('university', function (newMedia){
-		console.log(newMedia.length + " new media items");
+		console.log(newMedia);
+		console.log(newMedia.length + " new university media items");
+	})
+}, 1000 * 5)
+
+setInterval(function() {
+	console.log('\nFETCHING NEW MEDIA');
+	fetchNewMediaForTag('college', function (newMedia){
+		console.log(newMedia);
+		console.log(newMedia.length + " new college media items");
 	})
 }, 1000 * 5)
