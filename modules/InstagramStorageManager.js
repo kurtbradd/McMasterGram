@@ -29,11 +29,11 @@ fetchNewMediaForTag = function (tag, callback) {
 	getDataFromURL(apiUrl, function (err, response) {
 		if (err) return console.log(err);
 		var newMedia = parseMediaFromResponse(response);
-		if (newMedia.length > 0) {
+		if (newMedia) {
 			storeMediaDataToRedis(tag, newMedia);
 			storeMinTagIdForResponse(tag, response);
+			if (callback) return callback(newMedia);
 		}
-		if (callback) return callback(newMedia);
 	})
 }
 
@@ -48,6 +48,9 @@ exports.getRecentImages = function () {
 	// limit by 100?
 	// LRANGE(0, x)
 }
+
+exports.fetchNewMediaForTag = fetchNewMediaForTag;
+exports.getRecentImages = getRecentImages;
 
 getDataFromURL = function (url, callback) {
 	request(url, function (error, response, body) {
@@ -69,7 +72,7 @@ recentMediaURLBuilder = function (tag) {
 
 parseMediaFromResponse = function (response) {
 	var media = response.data;
-	if (!media) return;
+	if (media.length < 1) return false;
 	return reduceMediaMetaData(media);
 }
 
@@ -90,20 +93,9 @@ storeMediaDataToRedis = function (tag, media, callback) {
 storeMinTagIdForResponse = function (tag, response) {
 	var newMinTagId = response.pagination.min_tag_id;
 	if (newMinTagId) {
-		var key = "min_tag_id:hashtag:" + tag;
-		redis.set(key, newMinTagId);
-		console.log('Updated min_tag_id for ' + tag + ': ' + newMinTagId);
+		redis.set("min_tag_id:hashtag:" + tag, newMinTagId);
 		return latestMinTagId[tag] = newMinTagId;
 	}
-}
-
-setRecentImages = function (recentImages) {
-	_.forEach(recentImages, function (image) {
-		recentImages.push(image);
-	});
-	if (recentImages.length > 1000) {
-		recentImages.splice(0,recentImages.length-1000);
-	}	
 }
 
 reduceMediaMetaData = function (media) {
