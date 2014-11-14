@@ -73,17 +73,30 @@ parseMediaFromResponse = function (response) {
 }
 
 storeMediaDataToRedis = function (tag, media, callback) {
-	var stringMedia = _.map(media, function (image) {
-		return JSON.stringify(image);
-	});
+	var args = [];
 	var key = 'hashtag:' + tag;
-	stringMedia.unshift(key);
-	redis.lpush(stringMedia, function (err, data) {
+	var completionHandler = function (err, data) {
 		if (err) console.log(err);
-		if (data) console.log("length of newly pushed data: " + data);
+	}
+
+	_.forEach(media, function (image) {
+		args.push(image.created_time);
+		args.push(JSON.stringify(image));
 	});
-	redis.ltrim(key, 0, 99);
-	// redis.lrange(key, 0, -1, function (err, data) {});
+
+	args.unshift(key);
+	redis.zadd(args, completionHandler); //add new media
+	redis.zremrangebyrank(key, 0, -1001, completionHandler);
+	storeUnionOfHashtags(completionHandler); //union of all tags
+}
+
+storeUnionOfHashtags = function (completionHandler) {
+	var hashSets = Object.keys(latestMinTagId);
+	var unionArgs = ['all_hashtag_union:mcmaster_university', hashSets.length];
+	_.forEach(hashSets, function (hashtag) {
+		unionArgs.push("hashtag:" + hashtag);
+	});
+	redis.zunionstore(unionArgs,completionHandler);
 }
 
 storeMinTagIdForResponse = function (tag, response) {
@@ -96,12 +109,11 @@ storeMinTagIdForResponse = function (tag, response) {
 
 reduceMediaMetaData = function (media) {
 	return _.map(media, function (image) {
-		var keys = ['tags', 'location', 'link', 'likes', 'id',
+		var keys = ['created_time','tags', 'location', 'link', 'likes', 'id',
 								'type', 'videos', 'images','caption', 'user'];
 		return _.pick(image, keys);
 	});
 }
-
 
 setInterval(function() {
 	console.log('\nFETCHING NEW MEDIA');
