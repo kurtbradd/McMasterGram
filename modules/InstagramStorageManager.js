@@ -96,6 +96,8 @@ storeUnionOfHashtags = function (completionHandler) {
 	_.forEach(hashSets, function (hashtag) {
 		unionArgs.push("hashtag:" + hashtag);
 	});
+	unionArgs.push("AGGREGATE");
+	unionArgs.push("MAX");
 	redis.zunionstore(unionArgs,completionHandler);
 }
 
