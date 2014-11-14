@@ -36,16 +36,13 @@ fetchNewMediaForTag = function (tag, callback) {
 	})
 }
 
-exports.fetchNewMediaForTag = fetchNewMediaForTag;
-
-exports.getRecentImages = function () {
-	// return from redis
-	// for each hashtag stored
-	// fetch all images
-	// order by date??
-	// execute command
-	// limit by 100?
-	// LRANGE(0, x)
+getRecentImages = function (offset, limit, callback) {
+	var allHashKey = 'all_hashtag_union:mcmaster_university';
+	var completionHandler = function (err, data) {
+		console.log(data.length);
+		callback(data);
+	}
+	redis.zrevrange(allHashKey, offset, limit, completionHandler);
 }
 
 exports.fetchNewMediaForTag = fetchNewMediaForTag;
