@@ -6,7 +6,6 @@ var keys = require('../config/keys.js');
 var redis = require("redis").createClient();
 
 var recentImages = [];
-
 var latestMinTagId = {
 };
 
@@ -92,7 +91,7 @@ storeMediaDataToRedis = function (tag, media, callback) {
 
 storeUnionOfHashtags = function (completionHandler) {
 	var hashSets = Object.keys(latestMinTagId);
-	var unionArgs = ['all_hashtag_union:mcmaster_university', hashSets.length];
+	var unionArgs = ['all_hashtag_union', hashSets.length];
 	_.forEach(hashSets, function (hashtag) {
 		unionArgs.push("hashtag:" + hashtag);
 	});
