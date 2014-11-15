@@ -18,7 +18,7 @@ exports.init = function (server) {
 
 	return {
 		emitNewPics: function (pics) {
-			io.sockets.emit('newPics', {data: pics});
+			io.sockets.emit('newPics', pics);
 		}
 	}
 

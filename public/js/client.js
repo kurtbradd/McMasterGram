@@ -1,6 +1,6 @@
 $(function () {
-	// var socket = io.connect('http://a37d312.ngrok.com/');
-	var socket = io.connect('http://localhost:3000');
+	var socket = io.connect('http://6c9ab774.ngrok.com');
+	// var socket = io.connect('http://localhost:3000');
 
 	socket.on('connect', function() {
 		console.log('connected');
@@ -18,7 +18,7 @@ $(function () {
 
 	socket.on('newPics', function (data) {
 		$('#status').text('Got Data');
-		console.log(data);
+		console.log(JSON.parse(data));
 	})
 
 });
