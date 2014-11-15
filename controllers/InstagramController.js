@@ -43,11 +43,11 @@ setNewDataAvailableForTag = function (tag) {
 getUpdatedMedia = function () {
 	_.forEach(Object.keys(newDataAvailableForTag), function (tag) {
 		delete newDataAvailableForTag[tag];
-		instaUrl = getRecentMediaURLForTag(tag);
-		getDataFromURL(instaUrl, function (error, data) {
-			if (!error) StorageManager.parseDataForImages(data, function (data){
-				console.log('got data to send to sockets');
-				if (socketServer && data) socketServer.emitNewPics(JSON.stringify(data));
+		StorageManager.fetchNewMediaForTag(tag, function (err, data) {
+			console.log(tag + ' : ' + data.length);
+			_.forIn(data, function (image) {
+				var encodedString = unescape(encodeURIComponent(JSON.stringify(image)))
+				if (socketServer && data) socketServer.emitNewPics(encodedString);
 			});
 		})
 	});
