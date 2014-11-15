@@ -12,7 +12,8 @@ $(function () {
 	})
 
 	socket.on('error', function (err) {
-	  if (err) console.log(err);
+		if (err.description) console.log(err.description);
+	  // if (err) console.log(err);
 	});
 
 	socket.on('newPics', function (data) {
