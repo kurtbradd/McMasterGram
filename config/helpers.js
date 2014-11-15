@@ -14,3 +14,11 @@ exports.arrayDifferenceById = function (array1, array2) {
 		return diff.indexOf(obj.id) >= 0;
 	});
 }
+
+exports.encodeNonUTF8String = function (string) {
+	return unescape(encodeURIComponent(string));
+}
+
+exports.decodeNonUTF8String = function (string) {
+	return decodeURIComponent(escape(string));
+}

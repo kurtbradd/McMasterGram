@@ -1,6 +1,7 @@
 var _ = require('lodash');
 var request = require('request');
 var keys = require('../config/keys.js');
+var helper = require('../config/helpers.js')
 var environment = require('../config/environment.js');
 var StorageManager = require('../modules/InstagramStorageManager.js');
 
@@ -46,8 +47,9 @@ getUpdatedMedia = function () {
 		StorageManager.fetchNewMediaForTag(tag, function (err, data) {
 			console.log(tag + ' : ' + data.length);
 			_.forIn(data, function (image) {
-				var encodedString = unescape(encodeURIComponent(JSON.stringify(image)))
-				if (socketServer && data) socketServer.emitNewPics(encodedString);
+				var stringifyImageObj = JSON.stringify(image);
+				var encoded = helper.encodeNonUTF8String(stringifyImageObj);
+				if (socketServer && data) socketServer.emitNewPics(encoded);
 			});
 		})
 	});
