@@ -127,4 +127,5 @@ setInterval(function() {
 
 getRecentImages(0, 1, function (err, data) {
 	console.log(data.length);
-})
+})exports.fetchNewMediaForTag = fetchNewMediaForTag;
+exports.getRecentImages = getRecentImages;
