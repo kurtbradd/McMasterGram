@@ -1,7 +1,7 @@
 module.exports = {
 	
 	ngrok: {
-		url:'http://4e6ed858.ngrok.com'
+		url:'http://6c9ab774.ngrok.com'
 	},
 
 	instagram: {
