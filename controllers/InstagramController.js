@@ -17,7 +17,7 @@ postPics = function (socketio) {
 	return function (req, res) {
 		if (req.body) {
 			_.forEach(req.body, function (newMedia) {
-				tag = newMedia.object_id;
+				var tag = newMedia.object_id;
 				setNewDataAvailableForTag(tag);
 			});
 		}
