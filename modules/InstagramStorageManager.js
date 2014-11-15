@@ -74,7 +74,7 @@ parseMediaFromResponse = function (response) {
 storeMediaDataToRedis = function (tag, media, callback) {
 	var args = [];
 	var key = 'hashtag:' + tag;
-	var completionHandler = function (err, data) {
+	var errorLogger = function (err, data) {
 		if (err) console.log(err);
 	}
 
@@ -84,9 +84,9 @@ storeMediaDataToRedis = function (tag, media, callback) {
 	});
 
 	args.unshift(key);
-	redis.zadd(args, completionHandler); //add new media
-	redis.zremrangebyrank(key, 0, -1001, completionHandler);
-	storeUnionOfHashtags(completionHandler); //union of all tags
+	redis.zadd(args, errorLogger); //add new media
+	redis.zremrangebyrank(key, 0, -1001, errorLogger);
+	storeUnionOfHashtags(errorLogger); //union of all tags
 }
 
 storeUnionOfHashtags = function (completionHandler) {
