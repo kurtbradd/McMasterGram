@@ -36,12 +36,7 @@ fetchNewMediaForTag = function (tag, callback) {
 }
 
 getRecentImages = function (offset, limit, callback) {
-	var allHashKey = 'all_hashtag_union:mcmaster_university';
-	var completionHandler = function (err, data) {
-		if (err) callback(err);
-		if (data) callback(null, data);
-	}
-	redis.zrevrange(allHashKey, offset, limit, completionHandler);
+	redis.zrevrange(ALLHASH_UNION_KEY, offset, limit, callback);
 }
 
 exports.fetchNewMediaForTag = fetchNewMediaForTag;
