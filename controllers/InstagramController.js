@@ -45,12 +45,11 @@ getUpdatedMedia = function () {
 	_.forEach(Object.keys(newDataAvailableForTag), function (tag) {
 		delete newDataAvailableForTag[tag];
 		StorageManager.fetchNewMediaForTag(tag, function (err, data) {
-			console.log(tag + ' : ' + data.length);
-			_.forIn(data, function (image) {
+			var encodedArray = _.map(data, function (image) {
 				var stringifyImageObj = JSON.stringify(image);
-				var encoded = helper.encodeNonUTF8String(stringifyImageObj);
-				if (socketServer && data) socketServer.emitNewPics(encoded);
+				return helper.encodeNonUTF8String(stringifyImageObj);
 			});
+			if (socketServer && data) socketServer.emitNewPics(encodedArray);
 		})
 	});
 }
