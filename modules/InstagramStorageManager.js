@@ -30,7 +30,7 @@ fetchNewMediaForTag = function (tag, callback) {
 		if (newMedia) {
 			storeMediaDataToRedis(tag, newMedia);
 			storeMinTagIdForResponse(tag, response);
-			if (callback) return callback(newMedia);
+			if (callback) return callback(null, newMedia);
 		}
 	})
 }
