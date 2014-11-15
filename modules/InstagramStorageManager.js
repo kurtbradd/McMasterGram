@@ -16,7 +16,6 @@ redis.on("connect", function () {
 		_.forEach(hashtags, function (hashtag) {
 			redis.get(hashtag, function (err, tag_id){
 				latestMinTagId[hashtag.split(':').pop()] = tag_id;
-				console.log(latestMinTagId);
 			})
 		});
 	})
@@ -39,15 +38,12 @@ getRecentImages = function (offset, limit, callback) {
 	redis.zrevrange(ALLHASH_UNION_KEY, offset, limit, callback);
 }
 
-exports.fetchNewMediaForTag = fetchNewMediaForTag;
-exports.getRecentImages = getRecentImages;
-
 getDataFromURL = function (url, callback) {
 	request(url, function (error, response, body) {
 		if (!error && response.statusCode == 200) {
 			if (callback) return callback(null, JSON.parse(body));
 		}
-		if (callback) callback(error);
+		if (callback) return callback(error);
 	});
 }
 
