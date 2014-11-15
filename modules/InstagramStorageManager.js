@@ -5,6 +5,7 @@ var environment = require('../config/environment.js');
 var keys = require('../config/keys.js');
 var redis = require("redis").createClient();
 
+var ALLHASH_UNION_KEY = 'all_hashtag_union';
 var recentImages = [];
 var latestMinTagId = {
 };
@@ -16,7 +17,6 @@ redis.on("connect", function () {
 		_.forEach(hashtags, function (hashtag) {
 			redis.get(hashtag, function (err, tag_id){
 				latestMinTagId[hashtag.split(':').pop()] = tag_id;
-				console.log(latestMinTagId);
 			})
 		});
 	})
@@ -30,29 +30,21 @@ fetchNewMediaForTag = function (tag, callback) {
 		if (newMedia) {
 			storeMediaDataToRedis(tag, newMedia);
 			storeMinTagIdForResponse(tag, response);
-			if (callback) return callback(newMedia);
+			if (callback) return callback(null, newMedia);
 		}
 	})
 }
 
 getRecentImages = function (offset, limit, callback) {
-	var allHashKey = 'all_hashtag_union:mcmaster_university';
-	var completionHandler = function (err, data) {
-		if (err) callback(err);
-		if (data) callback(null, data);
-	}
-	redis.zrevrange(allHashKey, offset, limit, completionHandler);
+	redis.zrevrange(ALLHASH_UNION_KEY, offset, limit, callback);
 }
-
-exports.fetchNewMediaForTag = fetchNewMediaForTag;
-exports.getRecentImages = getRecentImages;
 
 getDataFromURL = function (url, callback) {
 	request(url, function (error, response, body) {
 		if (!error && response.statusCode == 200) {
 			if (callback) return callback(null, JSON.parse(body));
 		}
-		if (callback) callback(error);
+		if (callback) return callback(error);
 	});
 }
 
@@ -74,7 +66,7 @@ parseMediaFromResponse = function (response) {
 storeMediaDataToRedis = function (tag, media, callback) {
 	var args = [];
 	var key = 'hashtag:' + tag;
-	var completionHandler = function (err, data) {
+	var errorLogger = function (err, data) {
 		if (err) console.log(err);
 	}
 
@@ -84,14 +76,14 @@ storeMediaDataToRedis = function (tag, media, callback) {
 	});
 
 	args.unshift(key);
-	redis.zadd(args, completionHandler); //add new media
-	redis.zremrangebyrank(key, 0, -1001, completionHandler);
-	storeUnionOfHashtags(completionHandler); //union of all tags
+	redis.zadd(args, errorLogger); //add new media
+	redis.zremrangebyrank(key, 0, -1001, errorLogger);
+	storeUnionOfHashtags(errorLogger); //union of all tags
 }
 
 storeUnionOfHashtags = function (completionHandler) {
 	var hashSets = Object.keys(latestMinTagId);
-	var unionArgs = ['all_hashtag_union', hashSets.length];
+	var unionArgs = [ALLHASH_UNION_KEY, hashSets.length];
 	_.forEach(hashSets, function (hashtag) {
 		unionArgs.push("hashtag:" + hashtag);
 	});
@@ -116,20 +108,5 @@ reduceMediaMetaData = function (media) {
 	});
 }
 
-setInterval(function() {
-	console.log('\nFETCHING NEW MEDIA');
-	fetchNewMediaForTag('university', function (newMedia){
-		console.log(newMedia.length + " new university media items");
-	})
-}, 1000 * 5)
-
-setInterval(function() {
-	console.log('\nFETCHING NEW MEDIA');
-	fetchNewMediaForTag('college', function (newMedia){
-		console.log(newMedia.length + " new college media items");
-	})
-}, 1000 * 5)
-
-getRecentImages(0, 1, function (err, data) {
-	console.log(data.length);
-})
+exports.fetchNewMediaForTag = fetchNewMediaForTag;
+exports.getRecentImages = getRecentImages;
