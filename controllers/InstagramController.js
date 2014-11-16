@@ -11,16 +11,14 @@ initSockets = function (socketio) {
 	socketServer = socketio;
 }
 
-postPics = function (socketio) {
-	return function (req, res) {
-		if (req.body) {
-			_.forEach(req.body, function (newMedia) {
-				var tag = newMedia.object_id;
-				setNewDataAvailableForTag(tag);
-			});
-		}
-		return res.send(200);
+postPics = function (req, res) {
+	if (req.body) {
+		_.forEach(req.body, function (newMedia) {
+			var tag = newMedia.object_id;
+			setNewDataAvailableForTag(tag);
+		});
 	}
+	return res.send(200);
 }
 
 getPics = function (req, res) {
