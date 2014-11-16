@@ -30,9 +30,28 @@ fetchNewMediaForTag = function (tag, callback) {
 		if (newMedia) {
 			storeMediaDataToRedis(tag, newMedia);
 			storeMinTagIdForResponse(tag, response);
+			getMostRecentImagesFromUnionSet(newMedia);
+			console.log('Got ' + newMedia.length + ' new pics for tag: ' + tag);
 			if (callback) return callback(null, newMedia);
 		}
 	})
+}
+
+getMostRecentImagesFromUnionSet = function (data, callback) {
+	var mapData = data.map(function (image) {
+		return image.created_time;
+	});
+	var max = Math.max.apply(Math, mapData);
+	var min = Math.min.apply(Math, mapData);
+
+	if (min & max) {
+		redis.zrangebyscore(ALLHASH_UNION_KEY,min,max,function(err, data){
+			console.log('Min: '+ min + '\nMax: '+ max);
+  		if (err) return console.log(err);
+  		if (data) return console.log(data.length);
+		})
+	}
+
 }
 
 getRecentImages = function (offset, limit, callback) {
@@ -89,7 +108,7 @@ storeUnionOfHashtags = function (completionHandler) {
 	});
 	unionArgs.push("AGGREGATE");
 	unionArgs.push("MAX");
-	redis.zunionstore(unionArgs,completionHandler);
+	redis.zunionstore(unionArgs, completionHandler);
 }
 
 storeMinTagIdForResponse = function (tag, response) {
