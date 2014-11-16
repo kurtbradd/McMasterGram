@@ -6,6 +6,7 @@
     "start": "node app.js"
   },
   "dependencies": {
+    "body-parser": "^1.9.2",
     "express": "^3.5.1",
     "instagram-node": "^0.5.1",
     "lodash": "^2.4.1",

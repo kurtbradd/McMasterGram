@@ -1,4 +1,5 @@
 var _ = require('lodash');
+var bodyParser = require('body-parser')
 
 exports.isString = function (string) {
 	return (typeof string == 'string' || string instanceof String);
@@ -21,4 +22,8 @@ exports.encodeNonUTF8String = function (string) {
 
 exports.decodeNonUTF8String = function (string) {
 	return decodeURIComponent(escape(string));
-}
+}exports.rawBodyParser = bodyParser.json({
+	verify: function (req, res, buf) {
+		req.rawBody = buf;
+	}
+})
