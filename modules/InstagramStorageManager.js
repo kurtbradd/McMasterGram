@@ -1,6 +1,5 @@
 var _ = require('lodash');
 var request = require('request');
-var helper = require('../config/helpers.js')
 var environment = require('../config/environment.js');
 var keys = require('../config/keys.js');
 var redis = require("redis").createClient();
