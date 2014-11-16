@@ -1,12 +1,13 @@
 var path = require('path');
 var environment = require('./environment.js');
+var helper = require('./helpers.js');
 
 exports.setup = function (app, express) {
 	// all environments
 	app.set('port', process.env.PORT || environment.server.port);
 	// app.use(express.favicon());
 	app.use(express.logger('short'));
-	app.use(express.json());
+	app.use(helper.rawBodyParser);
 	app.use(express.urlencoded());
 	app.use(express.methodOverride());
 	app.use(express.static('./public'));
