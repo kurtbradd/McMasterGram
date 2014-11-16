@@ -5,3 +5,8 @@
 .thumb {
 	margin-bottom: 30px;
 }
+
+.instaPic {
+	max-width: 612px;
+	max-height: 612px; 
+}
