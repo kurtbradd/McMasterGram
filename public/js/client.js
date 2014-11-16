@@ -51,7 +51,7 @@ $(function () {
     var a = doc.createElement('a');
     var img = doc.createElement('img');
 
-    div.setAttribute('class', 'col-lg-3 col-md-4 col-xs-3');
+    div.setAttribute('class', 'col-lg-3 col-md-4 col-sm-6 col-xs-12');
     a.setAttribute('class', 'thumbnail');   
     a.setAttribute('href', imageObj.link);
     a.setAttribute('target', '_blank');
