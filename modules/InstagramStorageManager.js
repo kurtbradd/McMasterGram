@@ -23,6 +23,7 @@ redis.on("connect", function () {
 });
 
 fetchNewMediaForTag = function (tag, callback) {
+	if (!tag) return;
 	var apiUrl = recentMediaURLBuilder(tag);
 	getDataFromURL(apiUrl, function (err, response) {
 		if (err) return console.log(err);
@@ -59,6 +60,7 @@ getRecentImages = function (offset, limit, callback) {
 }
 
 getDataFromURL = function (url, callback) {
+	if (!(url && callback)) return;
 	request(url, function (error, response, body) {
 		if (!error && response.statusCode == 200) {
 			if (callback) return callback(null, JSON.parse(body));
@@ -77,12 +79,14 @@ recentMediaURLBuilder = function (tag) {
 }
 
 parseMediaFromResponse = function (response) {
+	if (!_.has(response, 'data')) return false;
 	var media = response.data;
 	if (media.length < 1) return false;
 	return reduceMediaMetaData(media);
 }
 
 storeMediaDataToRedis = function (tag, media, callback) {
+	if (!(tag && media)) return;
 	var args = [];
 	var key = 'hashtag:' + tag;
 	var errorLogger = function (err, data) {
@@ -101,6 +105,7 @@ storeMediaDataToRedis = function (tag, media, callback) {
 }
 
 storeUnionOfHashtags = function (completionHandler) {
+	if (!completionHandler) return;
 	var hashSets = Object.keys(latestMinTagId);
 	var unionArgs = [ALLHASH_UNION_KEY, hashSets.length];
 	_.forEach(hashSets, function (hashtag) {
@@ -112,6 +117,7 @@ storeUnionOfHashtags = function (completionHandler) {
 }
 
 storeMinTagIdForResponse = function (tag, response) {
+	if (!(tag && response && _.has(response, 'pagination'))) return;
 	var newMinTagId = response.pagination.min_tag_id;
 	if (newMinTagId) {
 		redis.set("min_tag_id:hashtag:" + tag, newMinTagId);
@@ -120,6 +126,7 @@ storeMinTagIdForResponse = function (tag, response) {
 }
 
 reduceMediaMetaData = function (media) {
+	if (!media) return false;
 	return _.map(media, function (image) {
 		var keys = ['created_time','tags', 'location', 'link', 'likes', 'id',
 								'type', 'videos', 'images','caption', 'user'];
