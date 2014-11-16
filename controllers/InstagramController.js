@@ -1,5 +1,6 @@
 var _ = require('lodash');
 var helper = require('../config/helpers.js')
+var keys = require('../config/keys.js')
 var StorageManager = require('../modules/InstagramStorageManager.js');
 
 console.log('Instagram Controller Loaded');
@@ -9,6 +10,13 @@ var socketServer = null
 
 initSockets = function (socketio) {
 	socketServer = socketio;
+}
+
+verifyOrigin = function (req, res, next) {
+	var digest = req.header('X-Hub-Signature');
+	var hash = helper.sha1Digest(keys.instagram.client_secret, req.rawBody)
+	if (hash == digest) return next()
+	return res.send(401);
 }
 
 postPics = function (req, res) {
@@ -52,5 +60,6 @@ getUpdatedMedia = function () {
 module.exports = {
 	initSockets: initSockets,
 	postPics: postPics,
-	getPics: getPics
+	getPics: getPics,
+	verifyOrigin:verifyOrigin
 }

@@ -1,11 +1,10 @@
 module.exports = function (app, socketio) {
-
 	console.log('Routes Loaded');	
 	// InstagramController Routes
-	var InstagramController = require('./InstagramController.js');
-	InstagramController.initSockets(socketio);
-	app.get('/pics', InstagramController.getPics);
-	app.post('/pics', InstagramController.postPics);
+	var InstaCtrl = require('./InstagramController.js');
+	InstaCtrl.initSockets(socketio);
+	app.get('/pics', InstaCtrl.getPics);
+	app.post('/pics', InstaCtrl.verifyOrigin, InstaCtrl.postPics);
 
 	// Catchall Route
 	app.get('*', function (req, res) {
