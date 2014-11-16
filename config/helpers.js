@@ -1,4 +1,5 @@
 var _ = require('lodash');
+var crypto = require('crypto');
 var bodyParser = require('body-parser')
 
 exports.isString = function (string) {
@@ -22,7 +23,17 @@ exports.encodeNonUTF8String = function (string) {
 
 exports.decodeNonUTF8String = function (string) {
 	return decodeURIComponent(escape(string));
-}exports.rawBodyParser = bodyParser.json({
+}
+
+exports.sha1Digest = function (key, data, encoding) {
+	if (!(key && data)) return false;
+	return crypto
+	.createHmac('sha1', key)
+	.update(data)
+	.digest(encoding || 'hex')
+}
+
+exports.rawBodyParser = bodyParser.json({
 	verify: function (req, res, buf) {
 		req.rawBody = buf;
 	}
