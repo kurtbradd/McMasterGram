@@ -1,8 +1,5 @@
 var _ = require('lodash');
-var request = require('request');
-var keys = require('../config/keys.js');
 var helper = require('../config/helpers.js')
-var environment = require('../config/environment.js');
 var StorageManager = require('../modules/InstagramStorageManager.js');
 
 console.log('Instagram Controller Loaded');
