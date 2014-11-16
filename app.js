@@ -18,7 +18,7 @@ server.listen(app.get('port'), function(){
 });
 
 // Bind Socket.io to HTTP Server
-var sockets = require('./config/sockets.js').init(server)
+var sockets = require('./modules/SocketsManager.js').init(server)
 
 // Setup Instagram Client
 var insta = require('./config/instagram.js').setup();
