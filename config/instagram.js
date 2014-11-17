@@ -5,7 +5,8 @@ var environment = require("./environment.js");
 var ig = require('instagram-node').instagram();
 
 
-var instagramTags = ['rave', 'edm', 'raver','techno', 'plur', 'kandi'];
+var instagramTags = ['rave', 'edm', 'raver','techno', 'plur', 'kandi',
+										'edmlife', 'plurlife'];
 
 exports.setup = function () {
 	ig.use(keys.instagram);
