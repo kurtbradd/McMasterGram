@@ -4,21 +4,16 @@ $(function () {
 
 	socket.on('connect', function() {
 		console.log('connected');
-		$('#status').text('Ready')
 	})
 
 	socket.on('disconnect', function() {
-		$('#status').text('Disconnected')
-		console.log('disconnected');
 	})
 
 	socket.on('error', function (err) {
-		$('#status').text('Error')
 		if (err.description) return console.log(err.description);
 	});
 
 	var recievePictureHandler = function (data) {
-		$('#status').text('Got Data');
 		data.reverse().forEach(function (item) {
 			storeImageToArray(item);
 			var dom = createImageElement(item);
