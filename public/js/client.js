@@ -1,11 +1,5 @@
 $(function () {
-	
 	var socket = io.connect('http://localhost:3000');
-
-	var imageSet = new SortedSet({ comparator: function(a, b) { 
-		return b - a; 
-	}});
-
 	var imagesArray = [];
 
 	socket.on('connect', function() {
@@ -27,7 +21,6 @@ $(function () {
 		$('#status').text('Got Data');
 		data.reverse().forEach(function (item) {
 			storeImageToArray(item);
-			imageSet.insert(item);
 			var dom = createImageElement(item);
 			if (dom) $('#image-gallery').prepend(dom);
 		})
@@ -61,7 +54,4 @@ $(function () {
     div.appendChild(a);
 		return div;
 	}
-
-	// $( "#target" ).click(itterateThroughSet);
-
 });
