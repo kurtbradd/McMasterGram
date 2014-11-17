@@ -1,6 +1,6 @@
 $(function () {
-	var socket = io.connect('http://51b4a6a.ngrok.com');
-	// var socket = io.connect('http://localhost:3000');
+	
+	var socket = io.connect('http://localhost:3000');
 
 	var imageSet = new SortedSet({ comparator: function(a, b) { 
 		return b - a; 
@@ -20,7 +20,7 @@ $(function () {
 
 	socket.on('error', function (err) {
 		$('#status').text('Error')
-		if (err.description) console.log(err.description);
+		if (err.description) return console.log(err.description);
 	});
 
 	var recievePictureHandler = function (data) {
@@ -45,7 +45,6 @@ $(function () {
 		if (!image) return false;
 		var imageObj = JSON.parse(image);
 		if (!imageObj.type == 'image') return false;
-		console.log(imageObj.created_time);
 		var doc = document; //performance measure
     var div = doc.createElement('div');
     var a = doc.createElement('a');
