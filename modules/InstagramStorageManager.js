@@ -6,8 +6,8 @@ var redis = require("redis").createClient();
 
 var ALLHASH_UNION_KEY = 'all_hashtag_union';
 var recentImages = [];
-var latestMinTagId = {
-};
+var latestMinTagId = {};
+var mostRecentCreatedTime;
 
 redis.on("connect", function () {
 	console.log('Redis Connected');
@@ -18,7 +18,11 @@ redis.on("connect", function () {
 				latestMinTagId[hashtag.split(':').pop()] = tag_id;
 			})
 		});
-	})
+	});
+	// store created_time for most recent picture;
+	getRecentImages(0,0, function (err, data) {
+		mostRecentCreatedTime = JSON.parse(data[0]).created_time;
+	});
 });
 
 fetchNewMediaForTag = function (tag, callback) {
@@ -30,28 +34,27 @@ fetchNewMediaForTag = function (tag, callback) {
 		if (newMedia) {
 			storeMediaDataToRedis(tag, newMedia);
 			storeMinTagIdForResponse(tag, response);
-			getMostRecentImagesFromUnionSet(newMedia);
-			console.log('Got ' + newMedia.length + ' new pics for tag: ' + tag);
-			if (callback) return callback(null, newMedia);
+			var newMaxCreatedTime = getMaxCreatedTimeFromImages(newMedia);
+			if (newMaxCreatedTime > mostRecentCreatedTime) {
+				getImagesAfterTime(mostRecentCreatedTime, function (err, data) {
+					if (err) return console.log(err);
+					if (callback) return callback(null, data);
+				})
+				mostRecentCreatedTime = newMaxCreatedTime;
+			}
 		}
 	})
 }
 
-getMostRecentImagesFromUnionSet = function (data, callback) {
-	var mapData = data.map(function (image) {
+getImagesAfterTime = function (created_time, callback) {
+	var minKey = "(" + created_time;
+	redis.zrangebyscore(ALLHASH_UNION_KEY,minKey,'+inf',callback);
+}
+
+getMaxCreatedTimeFromImages = function (media) {
+	return Math.max.apply(Math, media.map(function (image) {
 		return image.created_time;
-	});
-	var max = Math.max.apply(Math, mapData);
-	var min = Math.min.apply(Math, mapData);
-
-	if (min & max) {
-		redis.zrangebyscore(ALLHASH_UNION_KEY,min,max,function(err, data){
-			console.log('Min: '+ min + '\nMax: '+ max);
-  		if (err) return console.log(err);
-  		if (data) return console.log(data.length);
-		})
-	}
-
+	}));
 }
 
 getRecentImages = function (offset, limit, callback) {
