@@ -8,6 +8,7 @@ module.exports = function (app, socketio) {
 
 	// Catchall Route
 	app.get('*', function (req, res) {
+		res.charset = '"utf-8"';
 		res.sendfile('./public/views/index.html');
 	});
 }
