@@ -38,6 +38,7 @@ fetchNewMediaForTag = function (tag, callback) {
 			if (newMaxCreatedTime > mostRecentCreatedTime) {
 				getImagesAfterTime(mostRecentCreatedTime, function (err, data) {
 					if (err) return console.log(err);
+					console.log("New Pictures Count: " + data.length);
 					if (callback) return callback(null, data);
 				})
 				mostRecentCreatedTime = newMaxCreatedTime;
